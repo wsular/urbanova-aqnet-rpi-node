@@ -1,0 +1,65 @@
+#!/usr/bin/python
+
+# Script to access data from WSU Smart Cities sensors.
+#
+# Written by Von P. Walden
+#            4 Oct 2016
+
+from datetime import datetime
+# Create a unique filename
+localFile  = '/home/pi/aqnet/data/s1/aq.'+datetime.now().strftime('%Y%m%d_%H%M%S')+'.dat'
+# Write header to the local and remote files.
+header     = 'Time,Pressure,Temperature\n'
+#    ....LOCAL
+f          = open(localFile,'w')
+f.write('Time,Pressure,Temperature,PM1,PM2_5,PM10\n')
+f.close()
+
+# Initialize the BMP280 temperature/pressure sensor.
+import BMP280 as BMP280
+bmp280 = BMP280.BMP280()
+print('BMP280 connected!')
+
+# Initialize the K-30 carbon dioxide sensor.
+import serial
+import time
+ser = serial.Serial('/dev/ttyAMA0')
+print('K-30 Serial Connected!')
+ser.flushInput()
+time.sleep(1)
+
+# Initialize the OPC-N2 particle monitor.
+import spidev
+import opc
+spi = spidev.SpiDev()
+spi.open(0,0)
+spi.mode = 1
+spi.max_speed_hz = 500000
+alpha = opc.OPCN2(spi)
+print('OPC-N2 connected!')
+# Turn sensor on.
+time.sleep(1)
+alpha.on()
+
+# Read data from both sensors every 1 second.
+while True:
+    ser.write('\xFE\x44\x00\x08\x02\x9F\x25')
+    time.sleep(.01)
+    resp = ser.read(7)
+    high = ord(resp[3])
+    low  = ord(resp[4])
+    co2  = (high*256) + low
+    time.sleep(1)
+    hist = alpha.histogram()
+    print('')
+    print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    print('CO2 = ' + str(co2))
+    print 'Temp = {0:0.2f} C'.format(bmp280.read_temperature())
+    print 'Pressure = {0:0.2f} Pa'.format(bmp280.read_pressure())
+    print('PM1.0    = ' + str(hist['PM1']))
+    print('PM2.5    = ' + str(hist['PM2.5']))
+    print('PM10     = ' + str(hist['PM10']))
+    f = open(localFile,'a')
+    f.write(datetime.now().strftime('%Y-%m-%d %H:%M:%S')+','+str(co2)+','+str(bmp280.read_temperature())+','+str(bmp280.read_pressure())+','+str(hist['PM1'])+','+str(hist['PM2.5'])+','+str(hist['PM10'])+'\n')
+    f.close()
+    time.sleep(29)
