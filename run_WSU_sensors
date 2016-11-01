@@ -21,6 +21,11 @@ f          = open(localFile,'w')
 f.write('Time,Pressure,Temperature,PM1,PM2_5,PM10\n')
 f.close()
 
+# redirect `print`s to HDMI display
+console = open('/dev/tty1', 'w')
+import sys
+sys.stdout = console
+
 # Initialize the BMP280 temperature/pressure sensor.
 import BMP280 as BMP280
 bmp280 = BMP280.BMP280()
