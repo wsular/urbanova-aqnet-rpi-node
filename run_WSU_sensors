@@ -62,26 +62,33 @@ alpha.on()
 
 # Read data from both sensors every 1 second.
 while True:
-    ser.write('\xFE\x44\x00\x08\x02\x9F\x25')
-    time.sleep(.01)
-    resp = ser.read(7)
-    high = ord(resp[3])
-    low  = ord(resp[4])
-    co2  = (high*256) + low
-    time.sleep(1)
-    hist = alpha.histogram()
-    print('')
-    print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    print('K30     CO2   {:0.1f} ppm'.format(co2))
-    print('BMP280  tmpr  {:0.2f} degC'.format(bmp280.read_temperature()))
-    print('        press {:0.1f} kPa'.format(bmp280.read_pressure()/1000.))
-    print('HTU21D  tmpr  {:0.2f} degC'.format(htu21d.read_temperature()))
-    print('        RH    {:0.1f} %'.format(htu21d.read_humidity()))
-    print('OPC-N2  PM1   {:0.2f} ug/m^3'.format(hist['PM1']))
-    print('        PM2.5 {:0.2f} ug/m^3'.format(hist['PM2.5']))
-    print('        PM10  {:0.2f} ug/m^3'.format(hist['PM10']))
-    print('    samp freq {:0.2f} sec'.format(hist['Sampling Period']))
-    f = open(localFile,'a')
-    f.write(datetime.now().strftime('%Y-%m-%d %H:%M:%S')+','+str(co2)+','+str(bmp280.read_temperature())+','+str(bmp280.read_pressure())+','+str(hist['PM1'])+','+str(hist['PM2.5'])+','+str(hist['PM10'])+'\n')
-    f.close()
-    time.sleep(29)
+    try:
+        ser.write('\xFE\x44\x00\x08\x02\x9F\x25')
+        time.sleep(.01)
+        resp = ser.read(7)
+        high = ord(resp[3])
+        low  = ord(resp[4])
+        co2  = (high*256) + low
+        time.sleep(1)
+        hist = alpha.histogram()
+        print('')
+        print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        print('K30     CO2   {:0.1f} ppm'.format(co2))
+        print('BMP280  tmpr  {:0.2f} degC'.format(bmp280.read_temperature()))
+        print('        press {:0.1f} kPa'.format(bmp280.read_pressure()/1000.))
+        print('HTU21D  tmpr  {:0.2f} degC'.format(htu21d.read_temperature()))
+        print('        RH    {:0.1f} %'.format(htu21d.read_humidity()))
+        print('OPC-N2  PM1   {:0.2f} ug/m^3'.format(hist['PM1']))
+        print('        PM2.5 {:0.2f} ug/m^3'.format(hist['PM2.5']))
+        print('        PM10  {:0.2f} ug/m^3'.format(hist['PM10']))
+        print('    samp freq {:0.2f} sec'.format(hist['Sampling Period']))
+        f = open(localFile,'a')
+        f.write(datetime.now().strftime('%Y-%m-%d %H:%M:%S')+','+str(co2)+','+str(bmp280.read_temperature())+','+str(bmp280.read_pressure())+','+str(hist['PM1'])+','+str(hist['PM2.5'])+','+str(hist['PM10'])+'\n')
+        f.close()
+        time.sleep(29)
+    except KeyboardInterrupt, SystemExit:
+        raise
+    except:
+        print('Exception encountered! Ignoring...')
+
+
