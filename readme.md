@@ -88,6 +88,13 @@ For demonstration purposes only:
 * Enable auto login to console
 * print messages to terminal associated with HDMI display
   (tty1) instead of script's stdout
+* force HDMI output to avoid restarting just to see display
+  (edit `/boot/config.txt` as approp)
+* auto-start at boot by appending to `/home/pi/.bashrc`
+
+```
+sudo aqnet/run_WSU_sensors &
+```
 
 
 

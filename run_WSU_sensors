@@ -25,24 +25,25 @@ f.close()
 console = open('/dev/tty1', 'w')
 import sys
 sys.stdout = console
+print('\n\nStarting air quality sensors...')
 
 # Initialize the BMP280 temperature/pressure sensor.
-sys.path.append('../bmp280')
+sys.path.append('/home/pi/bmp280')
 import BMP280 as BMP280
 bmp280 = BMP280.BMP280()
-print('BMP280 connected!')
+print('    BMP280 connected!')
 
 # RH/T sensor
-sys.path.append('../weather-station')
+sys.path.append('/home/pi/weather-station')
 from HTU21D import HTU21D
 htu21d = HTU21D()
-print('HTU21D connected!')
+print('    HTU21D connected!')
 
 # Initialize the K-30 carbon dioxide sensor.
 import serial
 import time
 ser = serial.Serial('/dev/ttyAMA0')
-print('K-30 Serial Connected!')
+print('    K-30 Serial Connected!')
 ser.flushInput()
 time.sleep(1)
 
@@ -54,7 +55,7 @@ spi.open(0,0)
 spi.mode = 1
 spi.max_speed_hz = 500000
 alpha = opc.OPCN2(spi)
-print('OPC-N2 connected!')
+print('    OPC-N2 connected!')
 # Turn sensor on.
 time.sleep(1)
 alpha.on()
