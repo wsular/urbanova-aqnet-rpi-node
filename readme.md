@@ -90,13 +90,13 @@ For demonstration purposes only:
   (tty1) instead of script's stdout
 * force HDMI output to avoid restarting just to see display
   (edit `/boot/config.txt` as approp)
-* auto-start at boot by appending to `/home/pi/.bashrc`
+* auto-start at boot as per option B by adding to `/etc/rc.local`
 
 ```
-sudo aqnet/run_WSU_sensors &
+pushd /home/pi/aqnet
+sudo run_WSU_sensors &
+popd
 ```
-
-
 
 ### Requirements
 
