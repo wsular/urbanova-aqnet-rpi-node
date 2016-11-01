@@ -2,8 +2,7 @@
 
 # Script to access data from WSU Smart Cities sensors.
 #
-# Written by Von P. Walden
-#            4 Oct 2016
+# <https://bitbucket.org/wsular/urbanova-aqnet-proto>
 
 from datetime import datetime
 # Create a unique filename
