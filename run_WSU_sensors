@@ -32,6 +32,12 @@ import BMP280 as BMP280
 bmp280 = BMP280.BMP280()
 print('BMP280 connected!')
 
+# RH/T sensor
+sys.path.append('../weather-station')
+from HTU21D import HTU21D
+htu21d = HTU21D()
+print('HTU21D connected!')
+
 # Initialize the K-30 carbon dioxide sensor.
 import serial
 import time
@@ -65,12 +71,15 @@ while True:
     hist = alpha.histogram()
     print('')
     print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    print('CO2 = ' + str(co2))
-    print 'Temp = {0:0.2f} C'.format(bmp280.read_temperature())
-    print 'Pressure = {0:0.2f} Pa'.format(bmp280.read_pressure())
-    print('PM1.0    = ' + str(hist['PM1']))
-    print('PM2.5    = ' + str(hist['PM2.5']))
-    print('PM10     = ' + str(hist['PM10']))
+    print('K30     CO2   {:0.1f} ppm'.format(co2))
+    print('BMP280  tmpr  {:0.2f} degC'.format(bmp280.read_temperature()))
+    print('        press {:0.1f} kPa'.format(bmp280.read_pressure()/1000.))
+    print('HTU21D  tmpr  {:0.2f} degC'.format(htu21d.read_temperature()))
+    print('        RH    {:0.1f} %'.format(htu21d.read_humidity()))
+    print('OPC-N2  PM1   {:0.2f} ug/m^3'.format(hist['PM1']))
+    print('        PM2.5 {:0.2f} ug/m^3'.format(hist['PM2.5']))
+    print('        PM10  {:0.2f} ug/m^3'.format(hist['PM10']))
+    print('    samp freq {:0.2f} sec'.format(hist['Sampling Period']))
     f = open(localFile,'a')
     f.write(datetime.now().strftime('%Y-%m-%d %H:%M:%S')+','+str(co2)+','+str(bmp280.read_temperature())+','+str(bmp280.read_pressure())+','+str(hist['PM1'])+','+str(hist['PM2.5'])+','+str(hist['PM10'])+'\n')
     f.close()
