@@ -27,6 +27,7 @@ import sys
 sys.stdout = console
 
 # Initialize the BMP280 temperature/pressure sensor.
+sys.path.append('../bmp280')
 import BMP280 as BMP280
 bmp280 = BMP280.BMP280()
 print('BMP280 connected!')
