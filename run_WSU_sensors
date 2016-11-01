@@ -7,7 +7,14 @@
 
 from datetime import datetime
 # Create a unique filename
-localFile  = '/home/pi/aqnet/data/s1/aq.'+datetime.now().strftime('%Y%m%d_%H%M%S')+'.dat'
+import os
+savedir = '/var/log/aqnet'
+try:
+    os.makedirs(savedir)
+except OSError:
+    if not os.path.isdir(savedir):
+        raise
+localFile  = savedir+'/aq.'+datetime.now().strftime('%Y%m%d_%H%M%S')+'.csv'
 # Write header to the local and remote files.
 header     = 'Time,Pressure,Temperature\n'
 #    ....LOCAL
