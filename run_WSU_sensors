@@ -60,6 +60,13 @@ print('    OPC-N2 connected!')
 time.sleep(1)
 alpha.on()
 
+
+import atexit
+@atexit.register
+def cleanup():
+    alpha.off()
+
+
 # Read data from both sensors every 1 second.
 while True:
     try:
