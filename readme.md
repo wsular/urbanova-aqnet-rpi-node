@@ -108,19 +108,17 @@ Raspbian [Jessie Lite](https://www.raspberrypi.org/downloads/) (Sep16).
   (`/dev/tty1`) instead of script's stdout
 * force HDMI output so display occurs even if HDMI cord missing at boot time
   (edit `/boot/config.txt` as approp)
-* auto-start script at login by adding to `/etc/rc.local` (assuming this repo
-  lives in `/home/pi/aqnet`)
+* auto-start at boot using `~/.bashrc`; press ^C after login to
+  exit prototype script
 
-    ```
-    pushd /home/pi/aqnet
-    sudo run_WSU_sensors &
-    popd
-    ```
-
-    > **N.B.** this will cause the script to execute at *every* login -- so,
-    > if you `ssh` in, send `^C` (<kbd>Ctrl</kbd>+<kbd>C</kbd>) to exit that
-    > script and get a ready terminal (the script executing on autologin 
-    > terminal `/dev/tty1` will continue to run)
+> autostart options that don't work well:
+>
+> * cron @reboot (maybe worth retrying)
+> * .bashrc (starts for every shell session)
+> * /etc/rc.local (no errors, no output)
+> * systemd service (can uncapture stdout but requires restart after
+>   boot to see output; oddly, can see output in boot messages but
+>   not once login presented?)
 
 ### Requirements
 
