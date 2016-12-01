@@ -1,0 +1,13 @@
+[Unit]
+Description=K30 logging service
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/k30-logger
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+
