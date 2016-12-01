@@ -95,6 +95,25 @@ Raspbian [Jessie Lite](https://www.raspberrypi.org/downloads/) (Sep16).
 
 
 
+> Setting up shared internet connection:
+>
+> On gateway computer:
+>
+> 1. Must have static IP 10.11.12.1 (Pi0 expects this address as the DNS server)
+> 2. Enable packet forwarding:
+>    `sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward`
+> 3. Configure bridge between `wlp2s1` (source, typ. `wlan0`) and `enx1e6f988025b1`
+>    (the random interface created by Pi0 on gateway)
+>
+> ```
+> sudo iptables -t nat -A POSTROUTING -o wlp2s1 -j MASQUERADE
+> #sudo iptables -A FORWARD -i wlp2s1 -o enx1e6f988025b1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+> #sudo iptables -A FORWARD -i enx1e6f988025b1 -o wlan0 -j ACCEPT
+> ```
+>
+> ... Only really need the masquerade line.
+
+
 
 #### For demonstration purposes
 
