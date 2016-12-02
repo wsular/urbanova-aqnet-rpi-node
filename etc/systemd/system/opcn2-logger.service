@@ -1,0 +1,13 @@
+[Unit]
+Description=OPC-N2 logging service
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/opcn2-logger
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+

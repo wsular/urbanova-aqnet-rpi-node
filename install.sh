@@ -28,6 +28,32 @@ echo "Enabling BMP280 logging service start at boot..."
 systemctl enable bmp280-logger.service
 
 
+# OPC-N2 logger
+echo "Installing OPC-N2 logging service executable..."
+cp bin/opcn2-logger.py /usr/sbin/opcn2-logger
+chmod +x /usr/sbin/opcn2-logger
+cp etc/wsn/opcn2-logger.conf /etc/wsn/
+
+echo "Registering OPC-N2 logging service..."
+cp etc/systemd/system/opcn2-logger.service /etc/systemd/system/
+
+echo "Enabling OPC-N2 logging service start at boot..."
+systemctl enable opcn2-logger.service
+
+
+# humidity logger
+#echo "Installing HTU21D logging service executable..."
+#cp bin/htu21d-logger.py /usr/sbin/htu21d-logger
+#chmod +x /usr/sbin/htu21d-logger
+#cp etc/wsn/htu21d-logger.conf /etc/wsn/
+#
+#echo "Registering HTU21D logging service..."
+#cp etc/systemd/system/htu21d-logger.service /etc/systemd/system/
+#
+#echo "Enabling HTU21D logging service start at boot..."
+#systemctl enable htu21d-logger.service
+
+
 #if [ ! -f /etc/samba/smb.conf.bak ]; then
 #  echo "Backing up existing samba configuration file..."
 #  cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
@@ -41,5 +67,9 @@ echo "Starting K30 logging service..."
 systemctl restart k30-logger.service
 echo "Starting BMP280 logging service..."
 systemctl restart bmp280-logger.service
+echo "Starting OPC-N2 logging service..."
+systemctl restart opcn2-logger.service
+#echo "Starting HTU21D logging service..."
+#systemctl restart htu21d-logger.service
 #echo "Starting samba service..."
 #systemctl restart smbd
