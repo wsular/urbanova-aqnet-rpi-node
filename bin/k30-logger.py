@@ -62,7 +62,7 @@ log.addHandler(tsv_file)
 
 # for urbanova
 rundir = '/run/aqnet/k30'
-runfile = os.path.join(rundir, 'co2')
+runfile = os.path.join(rundir, 'CO2')
 try:
     os.makedirs(rundir)
 except OSError:
