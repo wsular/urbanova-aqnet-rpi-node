@@ -12,14 +12,7 @@ import time
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
-#import paho.mqtt.client as paho
-
-#import Adafruit_BMP.BMP085 as BMP
-import sys
-sys.path.append('/home/pi/bmp280')
-import BMP280 as BMP280
-
-#import socket
+from Adafruit_BMP import BMP280
 
 #### read config file
 import ConfigParser as configparser
@@ -29,11 +22,6 @@ c.read('/etc/wsn/bmp280-logger.conf')
 interval = c.getint('main', 'interval')
 log_dir = c.get('logging', 'log_dir')
 log_file = c.get('logging', 'log_file')
-
-#broker_addr = c.get('mqtt', 'broker_addr')
-#broker_port = c.get('mqtt', 'broker_port')
-#_template = c.get('mqtt', 'report_topic')
-#report_topic = _template.format(hostname=socket.gethostname())
 #######################################
 
 
@@ -52,7 +40,7 @@ tsfmt = '%Y-%m-%dT%H:%M:%S'#+tzstr
 log_fmt = logging.Formatter('%(asctime)s\t%(message)s',
                             datefmt=tsfmt)
 log_file = TimedRotatingFileHandler(osp.join(log_dir, log_file),
-                                    when='W6')
+                                    when='D', interval=30)
 log_file.setFormatter(log_fmt)
 log_file.suffix = '%Y-%m-%d.tsv'
 log = logging.getLogger(__name__)
@@ -61,51 +49,35 @@ log.addHandler(log_file)
 
 #log.addHandler(logging.StreamHandler()) # for debugging
 
-##### MQTT integration
-#client = paho.Client()
-#client.connect(broker_addr, broker_port)
-#client.loop_start()
-
 # for urbanova
 rundir = '/run/aqnet/bmp280'
-run_T = os.path.join(rundir, 'T')
-run_P = os.path.join(rundir, 'P')
 try:
     os.makedirs(rundir)
 except OSError:
     if not osp.isdir(rundir):
         raise
 
-#report = '{{"tstamp": {ts:0.2f}, "P": {p:0.2f}, "T": {t:0.2f}}}'
-
-#sensor = BMP.BMP085()
 sensor = BMP280.BMP280()
+
 
 while True:
     try:
-        tmpr = sensor.read_temperature() # C
-        press = sensor.read_pressure()/100.0 # Pa->mbar
-
+        T = sensor.read_temperature() # C
+        P = sensor.read_pressure()/100.0 # Pa->mbar
         now = time.time()
-        log.info('\t'.join(['{:0.2f}'.format(tmpr),
-                            '{:0.2f}'.format(press)]))
 
-        # for journalctl logs
-        print('{{"T": {0:0.2f}, "P": {1:0.2f}}}'.format(tmpr, press))
+        # rotating log files
+        log.info('\t'.join(['{:0.2f}'.format(T),
+                            '{:0.2f}'.format(P)]))
 
         # for Itron Riva
-        with open(run_T, 'w') as T:
-            T.write('{:0.2f}'.format(tmpr))
-        with open(run_P, 'w') as P:
-            P.write('{:0.2f}'.format(press))
-
-        #client.publish(report_topic,
-        #               report.format(ts=now, p=press, t=tmpr),
-        #               qos=1, retain=True)
+        with open(rundir+'/T', 'w') as f:
+            f.write('{:0.2f}'.format(T))
+        with open(rundir+'/P', 'w') as f:
+            f.write('{:0.2f}'.format(P))
 
         time.sleep(interval)
     except (KeyboardInterrupt, SystemExit):
-        #client.loop_stop()
         raise
     except:
         time.sleep(15)
