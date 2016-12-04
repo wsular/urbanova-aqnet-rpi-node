@@ -44,8 +44,8 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 log.addHandler(log_file)
 
-# for debugging & journalctl logs
-log.addHandler(logging.StreamHandler())
+# for debugging
+#log.addHandler(logging.StreamHandler())
 
 # for urbanova
 rundir = '/run/aqnet/opcn2/'
