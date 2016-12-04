@@ -32,24 +32,23 @@ except OSError:
     if not osp.isdir(log_dir):
         raise
 
-# HINT alt. solution to http://stackoveflow.com/a/27858760
-# XXXX does not handle partial-hour UTC offsets
-#tzstr = '{:+03d}00'.format(-time.timezone/3600)
-tsfmt = '%Y-%m-%dT %H:%M:%S'#+tzstr
-
-log_fmt = logging.Formatter('%(asctime)s\t%(message)s',
+tsfmt = '%Y-%m-%d %H:%M:%S'
+jsonfmt = "{'timestamp_PST': '%(asctime)s', 'data': %(message)s}"
+log_fmt = logging.Formatter(jsonfmt,
                             datefmt=tsfmt)
 log_file = TimedRotatingFileHandler(osp.join(log_dir, log_file),
-                                    when='W6')
+                                    when='D', interval=30)
 log_file.setFormatter(log_fmt)
 log_file.suffix = '%Y-%m-%d.tsv'
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 log.addHandler(log_file)
-#log.addHandler(logging.StreamHandler()) # for debugging
+
+# for debugging & journalctl logs
+log.addHandler(logging.StreamHandler())
 
 # for urbanova
-rundir = '/run/aqnet/opcn2'
+rundir = '/run/aqnet/opcn2/'
 try:
     os.makedirs(rundir)
 except OSError:
@@ -61,6 +60,12 @@ spi.open(0,0)
 spi.mode = 1
 spi.max_speed_hz = 500000
 opc = OPCN2(spi)
+opc.on()
+
+import atexit
+@atexit.register
+def cleanup():
+    opc.off()
 
 
 while True:
@@ -68,30 +73,17 @@ while True:
         data = opc.histogram()
         now = time.time()
 
-        with open(rundir+'/PM1', 'w') as f:
-            f.write(str(data['PM1']))
-        with open(rundir+'/PM2.5', 'w') as f:
-            f.write(str(data['PM2.5']))
-        with open(rundir+'/PM10', 'w') as f:
-            f.write(str(data['PM10']))
+        jsondata = {}
+        for k,v in data.items():
+            clean_name = k.replace(' ','_')
+            string_val = 'NAN' if v is None else str(v)
+            jsondata[clean_name] = string_val
 
-#        print(data)
-        #jsonrec = ('{' + "".join(['"{0}": {1}, '.format(k,v) 
-        #                for (k,v) in histogram.iteritems()])+'}')
-        #print(jsonrec)
-#        for (k,v) in data.items():
-#            print(k, ': ', v)
+            with open(rundir+clean_name, 'w') as f:
+                f.write(string_val)
 
-
-
-#        log.info('\t'.join(['{:0.2f}'.format(tmpr),
-#                            '{:0.2f}'.format(press)]))
-
-        # for Itron Riva
-#        with open(run_T, 'w') as T:
-#            T.write('{:0.2f}'.format(tmpr))
-#        with open(run_P, 'w') as P:
-#            P.write('{:0.2f}'.format(press))
+        # monthly-rotated flat json files
+        log.info(str(jsondata))
 
         time.sleep(interval)
     except (KeyboardInterrupt, SystemExit):
