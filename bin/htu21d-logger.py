@@ -43,7 +43,7 @@ tsfmt = '%Y-%m-%dT%H:%M:%S'#+tzstr
 log_fmt = logging.Formatter('%(asctime)s\t%(message)s',
                             datefmt=tsfmt)
 log_file = TimedRotatingFileHandler(osp.join(log_dir, log_file),
-                                    when='W6')
+                                    when='D', interval=30)
 log_file.setFormatter(log_fmt)
 log_file.suffix = '%Y-%m-%d.tsv'
 log = logging.getLogger(__name__)
