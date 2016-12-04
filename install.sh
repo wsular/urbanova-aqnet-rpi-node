@@ -42,16 +42,16 @@ systemctl enable opcn2-logger.service
 
 
 # humidity logger
-#echo "Installing HTU21D logging service executable..."
-#cp bin/htu21d-logger.py /usr/sbin/htu21d-logger
-#chmod +x /usr/sbin/htu21d-logger
-#cp etc/wsn/htu21d-logger.conf /etc/wsn/
-#
-#echo "Registering HTU21D logging service..."
-#cp etc/systemd/system/htu21d-logger.service /etc/systemd/system/
-#
-#echo "Enabling HTU21D logging service start at boot..."
-#systemctl enable htu21d-logger.service
+echo "Installing HTU21D logging service executable..."
+cp bin/htu21d-logger.py /usr/sbin/htu21d-logger
+chmod +x /usr/sbin/htu21d-logger
+cp etc/wsn/htu21d-logger.conf /etc/wsn/
+
+echo "Registering HTU21D logging service..."
+cp etc/systemd/system/htu21d-logger.service /etc/systemd/system/
+
+echo "Enabling HTU21D logging service start at boot..."
+systemctl enable htu21d-logger.service
 
 
 #if [ ! -f /etc/samba/smb.conf.bak ]; then
@@ -69,7 +69,7 @@ echo "Starting BMP280 logging service..."
 systemctl restart bmp280-logger.service
 echo "Starting OPC-N2 logging service..."
 systemctl restart opcn2-logger.service
-#echo "Starting HTU21D logging service..."
-#systemctl restart htu21d-logger.service
+echo "Starting HTU21D logging service..."
+systemctl restart htu21d-logger.service
 #echo "Starting samba service..."
 #systemctl restart smbd

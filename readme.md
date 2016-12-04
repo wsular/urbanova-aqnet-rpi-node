@@ -32,30 +32,174 @@ for the OPC-N2 (in contradiction to the software repo readme).
 Follow along, starting with a clean image of
 Raspbian [Jessie Lite](https://www.raspberrypi.org/downloads/) (Sep16).
 
+> You can do these steps on a different Pi, including a Pi 2/3...
+
 1. With `raspi-config`:
     1. Change the password
     2. Set approp locale/kb/tz
-    3. Set the hostname to `airquality` (or whatever)
+    3. ~~Set the hostname to `airquality`~~ Will set later using
+       Pi's serial number
     4. Enable SPI
     5. Enable I2C
     6. Disable shell on serial port
-2. Update everything:
-    1. `raspi-config` > Advanced > update
-    2. `dist-upgrade` Raspbian itself
-    3. install then run firmware updater `rpi-update`
-3. (Reboot)
-4. [Setup the real-time clock](https://learn.adafruit.com/adding-a-real-time-clock-to-raspberry-pi?view=all)
-    1. use `dtoverlay=i2c-rtc,ds3231`
-    2. yes, follow instructions despite anachronistic references
-       like `update-rc.d`...
-    3. while we're at it, enable NPT loopstats: uncomment
-       `statsdir...` line in `/etc/ntp.conf`
-5. Setup the BMP280 T/P sensor
-    1. ~~[these instructions should work](https://learn.adafruit.com/using-the-bmp085-with-raspberry-pi/using-the-adafruit-bmp085-python-library?view=all)~~
-    2. couldn't find source of referenced "BMP280" Python module...
-       I just `scp`ed from Von's protoype machine for now...
-    3. monkey-patch to use relative imports (see HTU21DF)
-6. Setup the HTU21DF RH/T sensor
+    7. Enable SSH server
+    8. Disable wait for network at boot
+    9. Advanced > Update
+2. Reboot
+3. `sudo apt-get dist-upgrade`
+4. install basic utilities: `git tmux htop build-essential python-dev`
+5. [Enable Ethernet Gadget mode](https://learn.adafruit.com/turning-your-raspberry-pi-zero-into-a-usb-gadget?view=all)
+    1. edit `/boot/config.txt` to contain `dtoverlay=dwc2`
+    2. edit `/boot/cmdline.txt` to contain `modules-load=dwc2,g_ether`
+       directly after `rootwait`
+6. Set static IP on device -- add to `/etc/network/interfaces`
+
+    ```
+    allow-hotplug usb0
+    iface usb0 inet static
+        address 10.11.12.13
+        netmask 255.255.255.0
+        network 10.11.12.13
+        broadcast 10.11.12.255
+        gateway 10.11.12.1 # upstream computer
+    ```
+
+> To share internet from upstream Debian-ish computer, first connect
+> Pi0 and identify it's interface (typ `usb0`). Also identify the upstream
+> interface with internet access (prob. `wlan0` or `eth0` on your computer).
+> 
+> 1. Setup a static IP address for the interface created by Pi0:
+> 
+>     ```
+>     allow-hotplug usb0
+>     iface usb0 inet static
+>         address 10.11.12.1
+>         netmask 255.255.255.0
+>         network 10.11.12.0
+>         broadcast 10.11.12.255
+>
+> 2. Install `dnsmasq` and use this for `/etc/dnsmasq.conf` (for DNS
+>    resolution on Pi0 side):
+>
+>     ```
+>     interface=usb0
+>     listen-address=10.11.12.1
+>     bind-interfaces
+>     server=8.8.8.8 # or whatever
+>     domain-needed
+>     bogus-priv
+>     dhcp-range=10.11.12.2,10.11.12.100,1h
+>     ```
+> 
+> 3. Create iptables rules (assuming Pi0 is `usb0` and internet comes
+>    from `eth0`) (**NB results not saved after reboot**): 
+>    `sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE`
+>    if additional firewall rules were present, probably also need:
+>
+>    ```
+>    sudo iptables -A FORWARD -i usb0 -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+>    sudo iptables -A FORWARD -i eth0 -o usb0 -j ACCEPT
+>    ```
+>
+> 4. *also need to enable packet forwarding?*:
+>    edit `/etc/sysctl.conf` to enable `net.ipv4.ip_forward=1`
+>    and to set immediately:
+>    `sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward`
+>
+> ref: <http://raspberrypi.stackexchange.com/a/50073>
+
+7. If you are working on a different Pi, power off and put the SD card
+   into the sensor's Pi0 now. The sensory hardware, clock, etc should
+   all be assembled
+8. Login to Pi0 via ssh from an upstream linux computer with internet
+   access.
+
+9. Enable real-time clock [ref](https://learn.adafruit.com/adding-a-real-time-clock-to-raspberry-pi?view=all)
+    1. install: `python-smbus i2c-tools`
+    2. edit `/boot/config.txt` to contain `dtoverlay=i2c-rtc,ds3231`
+    3. reboot
+    4. run `i2cdetect 1` and verify 0x68=`UU`
+    5. `sudo apt-get -y remove fake-hwclock`
+    6. `sudo update-rc.d -f fake-hwclock remove`
+    7. edit `/liv/udev/hwclock-set` to comment out
+
+        ```
+        #if [ -e /run/systemd/system];then
+        # exit 0
+        #fi
+        ```
+
+    8. set clock (check for valid datetime first with `date`):
+       `sudo hwclock -w` (read back with `sudo hwclock -D -w`)
+
+10. enable NPT stats: edit `/etc/ntp.conf` to uncomment line starting
+    with `statsdir ...`
+
+11. Setup watchdog service
+    1. install `watchdog`
+    2. edit `/boot/config.txt` to contain `dtoverlay=watchdog=on`
+       [ref](https://github.com/raspberrypi/linux/issues/1285#issuecomment-182264729)
+    3. fixup the systemd service file [thanks to](https://kd8twg.net/2015/10/30/raspberry-pi-enabling-watchdog-on-raspbian-jessie/):
+       edit `/lib/systemd/system/watchdog.service` to contain:
+
+        ```
+        [Install]
+        WantedBy=multi-user.target
+        ```
+
+    4. edit `/etc/watchdog.conf` to contain
+       [ref](https://blog.kmp.or.at/watchdog-for-raspberry-pi/)
+
+        ```
+        watchdog-device = /dev/watchdog
+        watchdog-timeout = 10
+        interval = 2
+        max-load-1 = 24
+        ```
+
+    5. enable service and start it using sytemctl
+    6. finally, test it with a fork bomb: `:(){ :|:& };:`
+       the Pi should return a PID number, then hang, then reboot
+
+12. Enable persistent system logs: `sudo mkdir -p /var/log/journal`
+    [ref](https://www.digitalocean.com/community/tutorials/how-to-use-journalctl-to-view-and-manipulate-systemd-logs)
+
+13. Download supporting packages
+    1. install `python-pip`
+    2. `pip install py-spidev`
+    3. `git clone https://github.com/raspberrypi/weather-station`
+    4. `git clone https://github.com/dhhagan/py-opc.git`
+    5. `git clone https://github.com/bastienwirtz/Adafruit_Python_BMP`
+    6. `git clone https://bitbucket.org/wsular/urbanova-aqnet-proto aqnet`
+    7. `cd Adafruit_Python_BMP && sudo python setup.py install`
+    8. `cd py-opc && sudo python setup.py install`
+    9. 
+    
+
+
+
+
+
+13.  K30
+    1. install `python-serial`
+    2. re-enable the freaking UART: edit `/boot/config.txt` to contain
+       `enable_uart=1`
+       <http://elinux.org/RPi_Serial_Connection>
+       <https://www.raspberrypi.org/forums/viewtopic.php?f=28&t=141195>
+       <https://github.com/raspberrypi/firmware/issues/553#issuecomment-199486644>
+    3. 
+
+
+
+
+----
+
+4. Setup the BMP280 T/P sensor
+    1. [these instructions should work](https://learn.adafruit.com/using-the-bmp085-with-raspberry-pi/using-the-adafruit-bmp085-python-library?view=all)
+    #. couldn't find source of "BMP280" Python module...
+       just `scp` from protoype machine for now...
+    #. monkey-patch to use relative imports as for HTU21DF
+5. Setup the HTU21DF RH/T sensor
     1. clone <https://github.com/raspberrypi/weather-station>
     2. use relative imports to obtain the module
        [ref](http://stackoverflow.com/a/279338/2946116):
@@ -66,34 +210,21 @@ Raspbian [Jessie Lite](https://www.raspberrypi.org/downloads/) (Sep16).
         import HTU21D
         ```
 
-7. Setup the K-30 sensor
-    1. install `python-serial`
-    2. re-enable UART, if necessary
-       <http://elinux.org/RPi_Serial_Connection>
-       <https://www.raspberrypi.org/forums/viewtopic.php?f=28&t=141195>
-       <https://github.com/raspberrypi/firmware/issues/553#issuecomment-199486644>
 
-        > *TODO:* determine if `raspi-config` is responsible for disabling
-        > UART via editing `/boot/config.txt` to contain `enable_uart=0`
-        > instead of `enable_uart=1`
 
-8. [Setup the OPC-N2 sensor](http://py-opc.readthedocs.io/en/latest/)
+#. [Setup the OPC-N2 sensor](http://py-opc.readthedocs.io/en/latest/)
     1. follow "developer" install (git->setup.py)
        <https://github.com/dhhagan/py-opc.git>
 
 9. [Enable Ethernet Gadget mode](https://learn.adafruit.com/turning-your-raspberry-pi-zero-into-a-usb-gadget?view=all)
     1. this is enough to establish connectivity to the pi. assuming you have
-       [zeroconf], just `ssh pi@airquality.local`
-    2. to share internet, configure the upstream RPi according to
-       [this answer](http://raspberrypi.stackexchange.com/a/50073/54372),
-       and then [set a static IP](http://elinux.org/RPi_Setting_up_a_static_IP_in_Debian)
-       on the Pi0 side. It was apparently also necessary to specify the
-       upstream Pi as a dns server for the Pi0.
+----
 
-    > *TODO*: install `dnsmasq` on Pi0 so upstream computer isn't reliant
-    > on bonjour or static IPs
+> *TODO:* determine if `raspi-config` is responsible for disabling
+> UART via editing `/boot/config.txt` to contain `enable_uart=0`
+> instead of `enable_uart=1`
 
-
+----
 
 > Setting up shared internet connection:
 >
