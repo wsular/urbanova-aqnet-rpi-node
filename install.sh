@@ -1,4 +1,24 @@
 #!/bin/bash
+#
+# WSU Air Quality Network Sensor Prototype
+# Laboratory for Atmospheric Research
+# Washington State University
+
+
+echo "Installing WSU AQN prototype..."
+
+### SYSTEM CONF
+
+echo "Generating unique hostname..."
+SERIAL="$(cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2)"
+HOSTNAME="aqnetproto-$SERIAL"
+echo "Setting hostname to $HOSTNAME..."
+hostname -b $HOSTNAME
+hostname $HOSTNAME
+echo "Finished updating hostname."
+
+
+### SERVICES SETUP
 
 mkdir -p /etc/wsn
 
