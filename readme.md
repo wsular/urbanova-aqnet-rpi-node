@@ -296,3 +296,41 @@ Raspbian [Jessie Lite](https://www.raspberrypi.org/downloads/) (Sep16).
     * ~~turn off OPC-N2 at script exit~~
 
 
+----
+
+## RPi-Monitor Integration
+
+For small projects, [RPi-Monitor](https://github.com/XavierBerger/RPi-Monitor)
+is a good quick-and-dirty solution that achieves:
+
+* local system monitoring (cpu, disk space, uptime, etc)
+* round-robin database storage (rrdtool)
+* web interface (no SSH req'd for monitoring)
+* plotting (with time zoom)
+
+The documentation is not spectacular, but it's easy to get started
+(copied from the debian packaage install docs):
+
+```
+sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 2C0D3C0F
+sudo wget http://goo.gl/vewCLL -O /etc/apt/sources.list.d/rpimonitor.list
+sudo apt-get update
+sudo apt-get install rpimonitor
+```
+
+Open a web browser and navigate to `http://10.11.12.13:8888`. There should 
+be a warning about "Update needed...". Pull updates and enable automatic 
+updates to keep current:
+
+```
+sudo /etc/init.d/rpimonitor update
+sudo /etc/init.d/rpimonitor install_auto_package_status_update
+```
+
+Now copy the relevant modified template files into the appropriate folder.
+
+> Hasn't been integrated into the install script yet.
+
+```
+sudo cp etc/rpimonitor/* /etc/rpimonitor/
+```
