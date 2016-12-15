@@ -9,6 +9,7 @@ from __future__ import print_function
 
 import os, os.path as osp
 import time
+import json
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
@@ -33,13 +34,13 @@ except OSError:
         raise
 
 tsfmt = '%Y-%m-%d %H:%M:%S'
-jsonfmt = "{'timestamp_PST': '%(asctime)s', 'data': %(message)s}"
+jsonfmt = '{"%(asctime)s": %(message)s}'
 log_fmt = logging.Formatter(jsonfmt,
                             datefmt=tsfmt)
 log_file = TimedRotatingFileHandler(osp.join(log_dir, log_file),
                                     when='D', interval=30)
 log_file.setFormatter(log_fmt)
-log_file.suffix = '%Y-%m-%d.tsv'
+log_file.suffix = '%Y-%m-%d.jsonl'
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 log.addHandler(log_file)
@@ -83,7 +84,7 @@ while True:
                 f.write(string_val)
 
         # monthly-rotated flat json files
-        log.info(str(jsondata))
+        log.info(json.dumps(data))
 
         time.sleep(interval)
     except (KeyboardInterrupt, SystemExit):
