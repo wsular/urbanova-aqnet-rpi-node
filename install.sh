@@ -13,8 +13,7 @@ echo "Generating unique hostname..."
 SERIAL="$(cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2)"
 HOSTNAME="aqnetproto-$SERIAL"
 echo "Setting hostname to $HOSTNAME..."
-hostname -b $HOSTNAME
-hostname $HOSTNAME
+hostnamectl set-hostname $HOSTNAME
 echo "Finished updating hostname."
 
 
