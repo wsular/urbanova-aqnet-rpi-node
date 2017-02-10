@@ -16,6 +16,9 @@ echo "Setting hostname to $HOSTNAME..."
 hostnamectl set-hostname $HOSTNAME
 echo "Finished updating hostname."
 
+echo "Installing network configuration..."
+cp etc/network/interfaces /etc/network/
+echo "Finished setting up network. Changes take effect on reboot."
 
 ### SERVICES SETUP
 
