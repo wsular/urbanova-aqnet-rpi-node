@@ -48,20 +48,34 @@ Raspbian [Jessie Lite](https://www.raspberrypi.org/downloads/) (Sep16).
 2. Reboot
 3. `sudo apt-get dist-upgrade`
 4. install basic utilities: `git tmux htop build-essential python-dev`
+
+> Actually, finish prep work here. That means
+>
+> * install watchdog service
+> * enable persistent journal logging
+> * enable ntp stats
+> * install other prereqs (python-smbus i2c-tools python-pip...)
+> * reboot and install hardware
+> * install hardware-specific packages
+> * finally, enable ethernet gadget mode
+
+
 5. [Enable Ethernet Gadget mode](https://learn.adafruit.com/turning-your-raspberry-pi-zero-into-a-usb-gadget?view=all)
     1. edit `/boot/config.txt` to contain `dtoverlay=dwc2`
     2. edit `/boot/cmdline.txt` to contain `modules-load=dwc2,g_ether`
        directly after `rootwait`
 6. Set static IP on device -- add to `/etc/network/interfaces`
 
+    > This step superceded by `install.sh`.
+
     ```
     allow-hotplug usb0
     iface usb0 inet static
-        address 10.11.12.13
+        address 10.20.0.2
         netmask 255.255.255.0
-        network 10.11.12.13
-        broadcast 10.11.12.255
-        gateway 10.11.12.1 # upstream computer
+        network 10.20.0.0
+        broadcast 10.20.0.255
+        gateway 10.20.0.1 # upstream computer
     ```
 
 > To share internet from upstream Debian-ish computer, first connect
@@ -77,6 +91,7 @@ Raspbian [Jessie Lite](https://www.raspberrypi.org/downloads/) (Sep16).
 >         netmask 255.255.255.0
 >         network 10.11.12.0
 >         broadcast 10.11.12.255
+>     ```
 >
 > 2. Install `dnsmasq` and use this for `/etc/dnsmasq.conf` (for DNS
 >    resolution on Pi0 side):
@@ -121,11 +136,11 @@ Raspbian [Jessie Lite](https://www.raspberrypi.org/downloads/) (Sep16).
     4. run `i2cdetect 1` and verify 0x68=`UU`
     5. `sudo apt-get -y remove fake-hwclock`
     6. `sudo update-rc.d -f fake-hwclock remove`
-    7. edit `/liv/udev/hwclock-set` to comment out
+    7. edit `/lib/udev/hwclock-set` to comment out
 
         ```
-        #if [ -e /run/systemd/system];then
-        # exit 0
+        #if [ -e /run/systemd/system ] ; then
+        #    exit 0
         #fi
         ```
 
@@ -166,13 +181,13 @@ Raspbian [Jessie Lite](https://www.raspberrypi.org/downloads/) (Sep16).
 
 13. Download supporting packages
     1. install `python-pip`
-    2. `pip install py-spidev`
+    2. `pip install spidev`
     3. `git clone https://github.com/raspberrypi/weather-station`
-    4. `git clone https://github.com/dhhagan/py-opc.git`
+    4. ~~`git clone https://github.com/dhhagan/py-opc.git`~~
     5. `git clone https://github.com/bastienwirtz/Adafruit_Python_BMP`
-    6. `git clone https://bitbucket.org/wsular/urbanova-aqnet-proto aqnet`
+    6. `git clone https://bitbucket.org/wsular/urbanova-aqnet-proto`
     7. `cd Adafruit_Python_BMP && sudo python setup.py install`
-    8. `cd py-opc && sudo python setup.py install`
+    8. ~~`cd py-opc && sudo python setup.py install`~~
     9. 
     
 
@@ -187,7 +202,7 @@ Raspbian [Jessie Lite](https://www.raspberrypi.org/downloads/) (Sep16).
        <http://elinux.org/RPi_Serial_Connection>
        <https://www.raspberrypi.org/forums/viewtopic.php?f=28&t=141195>
        <https://github.com/raspberrypi/firmware/issues/553#issuecomment-199486644>
-    3. 
+    3. step 2 no longer necessary it appears
 
 
 
@@ -195,10 +210,8 @@ Raspbian [Jessie Lite](https://www.raspberrypi.org/downloads/) (Sep16).
 ----
 
 4. Setup the BMP280 T/P sensor
-    1. [these instructions should work](https://learn.adafruit.com/using-the-bmp085-with-raspberry-pi/using-the-adafruit-bmp085-python-library?view=all)
-    #. couldn't find source of "BMP280" Python module...
-       just `scp` from protoype machine for now...
-    #. monkey-patch to use relative imports as for HTU21DF
+    1. clone bastienwirtz's fork of Adafruit_BMP
+    2. install via setup.py
 5. Setup the HTU21DF RH/T sensor
     1. clone <https://github.com/raspberrypi/weather-station>
     2. use relative imports to obtain the module
@@ -213,8 +226,7 @@ Raspbian [Jessie Lite](https://www.raspberrypi.org/downloads/) (Sep16).
 
 
 #. [Setup the OPC-N2 sensor](http://py-opc.readthedocs.io/en/latest/)
-    1. follow "developer" install (git->setup.py)
-       <https://github.com/dhhagan/py-opc.git>
+    1. `sudo pip install py-opc`
 
 9. [Enable Ethernet Gadget mode](https://learn.adafruit.com/turning-your-raspberry-pi-zero-into-a-usb-gadget?view=all)
     1. this is enough to establish connectivity to the pi. assuming you have
