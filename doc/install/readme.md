@@ -186,6 +186,11 @@ To share internet from another Linux computer (host), use *dnsmasq* per
     sudo iptables -A FORWARD -i eth0 -o usb0 -j ACCEPT
     ```
 
+## Nginx Reverse Proxy
+
+For details on the testing configuration which included an Nginx reverse proxy,
+[see this Gist](https://gist.github.com/patricktokeeffe/85895534418c9a4aa708cacddf421326).
+
 
 ## RPi-Monitor Integration
 

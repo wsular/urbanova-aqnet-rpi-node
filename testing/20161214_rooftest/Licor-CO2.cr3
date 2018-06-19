@@ -1,0 +1,86 @@
+' Use IAQ Tracer Release System for urbanova soak testing
+'
+' Record CO2/H2O analyzer and temperature probe at 0.1Hz
+'
+' Patrick O'Keeffe | Laboratory for Atmospheric Research
+
+Const LI840A_COM = Com4
+Const LI840A_BAUD = 9600
+Const LI840A_FMT = 3 '8/n/1, RS232 logic
+Const LI840A_REC = 100
+Const LI840A_BUFF = LI840A_REC*2 + 1
+Dim li840a_config As String * 300
+Dim li840a_resp As String * 32
+Public li840a_record As String * LI840A_REC
+Public li840a(5)
+Alias li840a(1) = li840a_cell_T
+Alias li840a(2) = li840a_cell_P
+Alias li840a(3) = li840a_CO2
+Alias li840a(4) = li840a_H2O
+Alias li840a(5) = li840a_dewpoint
+Units li840a_cell_T = degC
+Units li840a_cell_P = mb
+Units li840a_CO2 = ppm
+Units li840a_H2O = ppth
+Units li840a_dewpoint = degC
+
+Const DF_TYPE_K = 4
+Dim typeK_supplyair_T
+Dim logger_self_T
+Units typeK_supplyair_T = degC
+Units logger_self_T = degC
+
+
+DisplayMenu("Tracer Release", -2)
+  DisplayValue("Supply air T", typeK_supplyair_T)
+  DisplayValue("CO2", li840a_CO2)
+  DisplayValue("H2O", li840a_H2O)
+  DisplayValue("dewpoint", li840a_dewpoint)
+EndMenu
+
+
+DataTable(tsdata,True,1440*7)
+  DataInterval(0,10,Sec,1)
+  CardOut(0,28*86400/10)
+  Average(1,li840a_CO2,IEEE4,li840a_CO2=NAN)
+    FieldNames("li840a_CO2")
+  Average(1,li840a_H2O,FP2,li840a_H2O=NAN)
+    FieldNames("li840a_H2O")
+  Average(1,li840a_dewpoint,FP2,li840a_dewpoint=NAN)
+    FieldNames("li840a_dewpoint")
+  Average(1,li840a_cell_T,FP2,li840a_cell_T=NAN)
+    FieldNames("li840a_cell_T")
+  Average(1,li840a_cell_P,IEEE4,li840a_cell_P=NAN)
+    FieldNames("li840a_cell_P")
+  Average(1,typeK_supplyair_T,FP2,typeK_supplyair_T=NAN)
+    FieldNames("typeK_supplyair_T")
+  Average(1,logger_self_T,FP2,logger_self_T=NAN)
+    FieldNames("logger_self_T")
+EndTable
+
+
+BeginProg
+  li840a_config = ("<li840><cfg><outrate>1</outrate></cfg><rs232><co2>true</co2>" & _
+        "<co2abs>false</co2abs><h2o>true</h2o><h2odewpoint>true</h2odewpoint>" & _
+        "<h2oabs>false</h2oabs><celltemp>true</celltemp><cellpres>true</cellpres>" & _
+        "<ivolt>false</ivolt><raw>false</raw><strip>true</strip></rs232></li840>")
+  li840a_resp = ("<li840><ack>true</ack></li840>")
+  SerialOpen(LI840A_COM,LI840A_BAUD,LI840A_FMT,0,LI840A_BUFF)
+  SerialOut(LI840A_COM,li840a_config,li840a_resp,3,1)
+  
+  Scan(1,Sec,2,0)
+    PanelTemp(logger_self_T,250)
+    TCDiff(typeK_supplyair_T,1,mV20,DF_TYPE_K,TypeK,logger_self_T,1,0,250,1,0)
+    
+    SerialIn(li840a_record,LI840A_COM,50,&h0A,LI840A_BUFF) 'waits 500 ms
+    If (Len(li840a_record)) Then
+      SplitStr(li840a(1),li840a_record,"",5,0)
+      li840a_cell_P *= 10 'kPa -> mbar
+    Else
+      Move(li840a(1),5,NAN,1)
+    EndIf
+     
+    CallTable(tsdata)
+  NextScan
+EndProg
+

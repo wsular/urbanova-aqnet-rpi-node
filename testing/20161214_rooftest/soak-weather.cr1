@@ -1,0 +1,94 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Weather station :: Urbanova sensor soak test
+' adapted from LCV-HCHO 2016 Landfill met tower program
+'
+' Patrick O'Keeffe
+' Laboratory for Atmospheric Research at Washington State University
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Const NTP_SERVER = "1.us.pool.ntp.org"
+Const UTC_OFFSET = -8*3600
+Const MAX_CLOCK_DRIFT = 500 'ms
+Public ntp_offset
+Units ntp_offset = ms
+
+Const WX_COM = Com1   'C1/C2
+Const WX_BAUD = 4800
+Const WX_FMT = 3 '8/n/1, RS232
+Const WX_BUFF = 250
+Const DOLLAR_W = &h2457 ' "$W"
+Const DOLLAR_G = &h2447 ' "$G"
+Const CRLF = &h0D0A ' <CR><LF>
+
+'record lengths from Table 1, PB100 WeatherStation Technical Manual r1.007
+Public wimda As String * 81+1
+Public wx_bytes
+
+Public VP, SVP, VP2, SVP2 'for calcing mean RH
+Public metvals(10)
+' "IMDA," consumed
+'Alias metvals(1) = barometric pressure, inches of mercury
+' ",I," consumed
+Alias metvals(2) = P_10m 'barometric pressure, bars
+' ",B," consumed
+Alias metvals(3) = T_10m 'air temperature, degrees C
+' ",C,,," consumed (no water temperature or units)
+Alias metvals(4) = RH_10m 'relative humidity, %
+' ",," consumed(no absolute humidity)
+Alias metvals(5) = dewpoint_10m 'dewpoint, degrees C
+' ",C," consumed
+Alias metvals(6) = WD_10m 'degrees E of TN
+' ",T," consumed
+Alias metvals(7) = WD_mag_10m 'degrees E of MN
+' ",M," consumed
+'Alias metvals(8) = wind speed, knots
+' ",N," consumed
+Alias metvals(9) = WS_10m 'm/s
+' "M*" consumed
+'Alias metvals(10) = checksum
+Units P_10m = mbar
+Units T_10m = degC
+Units RH_10m = %
+Units dewpoint_10m = degC
+Units WD_10m = degTN
+Units WD_mag_10m = degMN
+Units WS_10m = m/s
+
+
+DataTable(tsdata,True,86400*3)
+  DataInterval(0,10,Sec,5)
+  CardOut(0,28*86400/10)
+  TableFile("CRD:
+  Sample(1,P_10m,IEEE4)
+  Sample(1,T_10m,FP2)
+  Sample(1,RH_10m,FP2)
+  Sample(1,dewpoint_10m,FP2)
+  Sample(1,WS_10m,FP2)
+  Sample(1,WD_10m,FP2)
+EndTable
+
+BeginProg
+  SetStatus("StationName", "weather")
+  SerialOpen(WX_COM,WX_BAUD,WX_FMT,0,WX_BUFF)
+  Move(metvals(1),10,NAN,1)
+	Scan (1,Sec,0,0)
+    SerialInRecord(WX_COM,wimda,DOLLAR_W,0,CRLF,wx_bytes,110)
+    If (Len(wimda)) Then
+      SplitStr(metvals(1),wimda,"",10,0)
+      P_10m *= 1000 'bar --> mbar
+    Else
+      Move(metvals(1),10,NAN,1)
+      VP = NAN
+      SVP = NAN
+      VP2 = NAN
+      SVP2 = NAN
+    EndIf
+    CallTable(tsdata)
+	NextScan
+  
+  SlowSequence
+  Scan(5,Min,1,0)
+    ntp_offset = NetworkTimeProtocol(NTP_SERVER,UTC_OFFSET,MAX_CLOCK_DRIFT)
+  NextScan
+EndProg
+

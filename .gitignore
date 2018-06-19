@@ -1,0 +1,6 @@
+# Jupyter save points
+**/.ipynb_checkpoints/*
+
+# non-zipped test data files
+testing/20161214_rooftest/soak2-*_tsdata.dat
+testing/20161214_rooftest/soak2-*PM
