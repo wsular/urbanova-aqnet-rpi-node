@@ -37,6 +37,10 @@ Also, a relevant excerpt from optical particle counter user manual:
 > this case out to approximately 10 μm particles."
 
 
+### License
+
+This work licensed under [The MIT License](http://opensource.org/licenses/mit-license.html).
+
 ### References
 
 * Alphasense. *Alphasense User Manual OPC-N2 Optical Particle Counter.*
