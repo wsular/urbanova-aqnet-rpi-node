@@ -36,6 +36,18 @@ Also, a relevant excerpt from optical particle counter user manual:
 > included in PM2.5, the proportion decreasing withincreasing particle size, in
 > this case out to approximately 10 μm particles."
 
+### Testing
+
+A few test data sets are available [here](testing/). You can view example code
+in the Jupyter notebook "[Validation Testing](Validation%20Testing.ipynb)" 
+directly in Github, or to see/interact with the Bokeh plots too, open locally
+with Jupyter or [render it](http://nbviewer.jupyter.org/github/wsular/urbanova-aqnet-pi0-node/blob/next/testing/Validation%20Testing.ipynb)
+using nbviewer.jupyter.org. 
+
+* Bench test (Dec 4-5, 2016)
+* Roof test #1 (Dec 5-6, 2016)
+* Roof test #2 (Dec 14, 2016 - Jan 9, 2017)
+
 
 ### License
 
