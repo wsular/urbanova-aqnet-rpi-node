@@ -21,9 +21,9 @@ and `scp`-based scraping tools (e.g. the [Itron](https://www.itron.com/na/) Clou
 
 ### Documentation
 
-* [Assembly notes](doc/build/)
-* [Initial setup](doc/install/)
-* [Integration with Itron Cloud](doc/itron/)
+* [Assembly notes](doc/hardware.md)
+* [Initial setup](doc/software.md)
+* [Integration with Itron Cloud](doc/itron.md)
 
 Also, a relevant excerpt from optical particle counter user manual:
 

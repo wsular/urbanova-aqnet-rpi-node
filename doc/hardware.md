@@ -24,7 +24,7 @@ connecting devices to the I2C bus and power pins.
 Diagram of wiring connections (.png is embedded with [Draw.io](https://www.draw.io/) 
 xml file):
 
-![Wiring diagram](wiring.png)
+![Wiring diagram](diagrams/wiring.png)
 
 
 ## CAD Drawings
@@ -32,9 +32,9 @@ xml file):
 To-scale CAD drawings of environmental sensors for positioning enclosure 
 cut-outs and mounting holes. PDFs sized for Letter paper.
 
-* CO2 sensor (K30): [.dxf](panel-layout_K30.dxf), [.pdf](panel-template_K30.pdf)
-* PM sensor (OPC-N2): [.dxf](panel-layout_OPC-N2.dxf), [.pdf](panel-template_OPC-N2.pdf)
-* T/RH sensor (HTU21D): [.dxf](panel-layout_HTU21DF.dxf), [.pdf](panel-template_HTU21DF.pdf)
+* CO2 sensor (K30): [.dxf](diagrams/panel-layout_K30.dxf), [.pdf](diagrams/panel-template_K30.pdf)
+* PM sensor (OPC-N2): [.dxf](diagrams/panel-layout_OPC-N2.dxf), [.pdf](diagrams/panel-template_OPC-N2.pdf)
+* T/RH sensor (HTU21D): [.dxf](diagrams/panel-layout_HTU21DF.dxf), [.pdf](diagrams/panel-template_HTU21DF.pdf)
 * P/T sensor (BMP280): *n/a, mounted inside enclosure*
 
 
@@ -47,45 +47,45 @@ enclosure. See *CAD Drawings* above for printable position templates.
 > still represents barometric pressure as the box is not air-tight, but the
 > temperature measurement does not reflect ambient conditions.*
 
-![Holes drilled in bottom of enclosure](IMG_20161130_204123.jpg)
+![Holes drilled in bottom of enclosure](photos/pi0-itron-prototype/IMG_20161130_204123.jpg)
 
 Rudimentary weatherproofing of the T/RH sensor (HTU21D) is done with hot glue:
 
-![Install details for temp/RH sensor](IMG_20161130_204324.jpg)
+![Install details for temp/RH sensor](photos/pi0-itron-prototype/IMG_20161130_204324.jpg)
 
 The aerosol sensor (OPC-N2) has a foam gasket for weather resistance; secure it
 using M3 screws (try 5mm length). The CO2 sensor (K30) fits snugly to the 
 enclosure on #4-40, 5/16" tall stand-offs:
 
-![Detail image of OPC-N2 and K30 mounting](IMG_20161130_205835.jpg)
+![Detail image of OPC-N2 and K30 mounting](photos/pi0-itron-prototype/IMG_20161130_205835.jpg)
 
 Raspberry Pi, pressure/temperature sensor (BMP280) and real-time clock (RTC)
 (DS3231) are mounted to the rear panel:
 
-![Top down view of internal mounting panel](IMG_20161130_215413.jpg)
+![Top down view of internal mounting panel](photos/pi0-itron-prototype/IMG_20161130_215413.jpg)
 
-![Bottom up view of internal mounting panel](IMG_20161130_215431.jpg)
+![Bottom up view of internal mounting panel](photos/pi0-itron-prototype/IMG_20161130_215431.jpg)
 
 Keep those connectors (all of them!) in place with hot glue:
 
-![Example of pinning connectors with hot glue](IMG_20161130_220525.jpg)
+![Example of pinning connectors with hot glue](photos/pi0-itron-prototype/IMG_20161130_220525.jpg)
 
 You can improvise stand-offs of any size using long bolts and hex nuts. This
 photo also shows a more compact Pi Hat layout with clock and P/T sensor
 directly mounted.
 
-![Poor man's stand off](IMG_20161205_104145.jpg)
+![Poor man's stand off](photos/pi0-itron-prototype/IMG_20161205_104145.jpg)
 
 The inside of an assembled package looks like this:
 
-![Internal view with all components installed](IMG_20161204_161815.jpg)
+![Internal view with all components installed](photos/pi0-itron-prototype/IMG_20161204_161815.jpg)
 
 And the three prototype units looked like this during their initial bench tests
 on the Paccar roof Dec 2016-Jan 2017.
 
-![Prototype unit #1](IMG_20161214_205543.jpg)
+![Prototype unit #1](photos/pi0-itron-prototype/IMG_20161214_205543.jpg)
 
-![Prototype unit #2](IMG_20161214_205659.jpg)
+![Prototype unit #2](photos/pi0-itron-prototype/IMG_20161214_205659.jpg)
 
-![Prototype unit #3](IMG_20161214_205716.jpg)
+![Prototype unit #3](photos/pi0-itron-prototype/IMG_20161214_205716.jpg)
 
