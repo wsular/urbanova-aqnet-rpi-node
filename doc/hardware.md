@@ -21,10 +21,16 @@ connecting devices to the I2C bus and power pins.
 > support the OPC-N2 start-up current requirements. Of course, you should use a 
 > high quality power supply that can source at least 2A.*
 
-Diagram of wiring connections (.png is embedded with [Draw.io](https://www.draw.io/) 
-xml file):
+Diagram of wiring connections (open images with [Draw.io](https://www.draw.io/) 
+to edit, export as PNG with "include a copy.." to save):
 
-![Wiring diagram](diagrams/wiring.png)
+### Pi 0
+
+![Wiring diagram for Pi 0](diagrams/wiring-pi0.png)
+
+### Pi 3
+
+![Wiring diagram for Pi 3](diagrams/wiring-pi3.png)
 
 
 ## CAD Drawings
@@ -38,7 +44,12 @@ cut-outs and mounting holes. PDFs sized for Letter paper.
 * P/T sensor (BMP280): *n/a, mounted inside enclosure*
 
 
-## Construction
+## Next-gen Unit Construction
+
+> ***Fix me***
+
+
+## Prototype Construction
 
 Sensors are exposed to ambient conditions through holes in the bottom of the 
 enclosure. See *CAD Drawings* above for printable position templates. 
