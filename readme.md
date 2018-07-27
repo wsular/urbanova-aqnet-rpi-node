@@ -39,9 +39,9 @@ Also, a relevant excerpt from optical particle counter user manual:
 ### Testing
 
 A few test data sets are available [here](testing/). You can view example code
-in the Jupyter notebook "[Validation Testing](Validation%20Testing.ipynb)" 
+in the Jupyter notebook "[Validation Testing](testing/Validation%20Testing.ipynb)" 
 directly in Github, or to see/interact with the Bokeh plots too, open locally
-with Jupyter or [render it](http://nbviewer.jupyter.org/github/wsular/urbanova-aqnet-pi0-node/blob/next/testing/Validation%20Testing.ipynb)
+with Jupyter or [render it](http://nbviewer.jupyter.org/github/wsular/urbanova-aqnet-rpi-node/blob/master/testing/Validation%20Testing.ipynb)
 using nbviewer.jupyter.org. 
 
 * Bench test (Dec 4-5, 2016)
